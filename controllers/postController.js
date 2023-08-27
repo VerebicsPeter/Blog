@@ -4,7 +4,13 @@ const Comment = require('../models/comment')
 
 const mongoose = require('mongoose')
 
-const { marked } = require('marked'); marked.use({sanitize: true})
+const { marked } = require('marked')
+//marked.use({sanitize: true}) // don't use, deprecated
+// JSDOM and DOM Purify for sanitizing marked HTML
+const { JSDOM } = require('jsdom')
+const window = new JSDOM('').window
+const Dompurify = require('dompurify')
+const dompurify = Dompurify(window)
 
 exports.postsIndex = async (req, res) => {
     try {
@@ -56,7 +62,7 @@ exports.showPost = async (req, res) => {
     let post = await Post.findById(id)
     if (!post) {res.redirect('/posts'); return}
 
-    post.text = marked.parse(post.text)
+    post.text = dompurify.sanitize(marked.parse(post.text)) // sanitized HTML
 
     const editable = post.username === req.session.username
     const comments = await Comment.find({post: id})

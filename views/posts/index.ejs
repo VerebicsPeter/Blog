@@ -20,9 +20,12 @@
 <%- include("../partials/title") %>
 
 <div class="container">
-  <form class="form-inline" method="GET" action="/posts/search">
-    <div class="form-group">
-      <input name="title" id="title" type="text" class="form-control m-2" placeholder="Search for a post's title ...">
+  <form method="GET" action="/posts/search" class="m-2">
+    <div class="input-group w-50">
+      <input name="title" id="title" type="text" class="form-control" placeholder="Search for a post's title ...">
+      <div class="input-group-append">
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      </div>
     </div>
   </form>
 </div>
@@ -62,6 +65,5 @@
   </nav>
 </div>
 <% } %>
-
 
 <%- include("../partials/footer") %>
