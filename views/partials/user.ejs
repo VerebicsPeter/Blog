@@ -1,0 +1,7 @@
+  <div <%= auth ? 'hidden' : '' %> class="navbar-nav">
+    <a href="/users/login" class="badge badge-primary m-2 p-2">Log in</a>
+    <a href="/users/signup" class="badge badge-secondary m-2 p-2">Sign up</a>
+  </div>
+  <div <%= auth ? '' : 'hidden' %> class="navbar-nav">
+    <a href="/users/logout" class="badge badge-secondary m-2 p-2">Log out</a>
+  </div>

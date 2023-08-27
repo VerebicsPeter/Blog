@@ -1,0 +1,86 @@
+<%- include("../partials/head") %>
+
+<header>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="">Blog</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav mr-auto">
+        <a class="nav-item nav-link" href="/">Home</a>
+        <a class="nav-item nav-link active" href="/posts">Posts</a>
+        <a class="nav-item nav-link" href="/posts/new">New Post</a>
+      </div>
+      <%- include("../partials/user") %>
+    </div>
+</nav>
+</header>
+
+<%- include("../partials/title") %>
+
+<div class="container">
+  <span class="m-2">Posted by <b><%=post.username%></b></span>
+</div>
+<hr>
+<div class="container">
+  <article class="text-justify bg-light border rounded">
+    <div class="m-2 p-2"><%-post.text%></div>
+  </article>
+  <hr>
+  <div class="d-flex">
+    <div class="p-2">
+      <a href="javascript:history.go(-1)">Back</a>
+    </div>
+    <div class="p-2">
+      <% if (editable) { %>
+        <a href="/posts/<%=post.id%>/edit">Edit</a>
+      <% } %>
+    </div>
+    <div class="p-2 ml-auto">
+      <% if (editable) { %>
+        <form method="POST" action="/posts/<%=post.id%>?_method=DELETE" 
+          onsubmit="return confirm('Are you sure you want to delete this post?')">
+          <button type="submit" class="btn btn-secondary btn-sm">Delete</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<% if (auth) { %>
+<hr>
+<div class="container">
+  <form method="POST" action="/comments/<%=post.id%>/create" class="m-2">
+    <div class="input-group w-50">
+      <input type="text" name="comment" placeholder="Add a comment ..." required class="form-control">
+      <div class="input-group-append">
+        <button type="submit" class="btn btn-primary btn-sm">Add</button>
+      </div>
+    </div>
+  </form>
+</div>
+<% } %>
+<% if (comments.length) { %>
+<hr>
+<div class="container">
+  <span class="m-2">Comments</b></span>
+  <% for (comment of comments) { %>
+    <div class="m-2 p-2 border rounded bg-light">
+      <b><%=comment.username%></b>
+      <div class="d-flex">
+        <div class="mr-auto">
+          <%=comment.comment%>
+        </div>
+        <% if (comment.username === username) { %>
+        <form method="POST" action="/comments/<%=comment.id%>/delete">
+          <button type="submit" class="badge badge-secondary p-1">Delete</button>
+        </form>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+</div>
+<% } %>
+
+<%- include("../partials/footer") %>
