@@ -11,5 +11,4 @@ exports.home = async (req, res) => {
         title: "Home", posts,
         auth: req.session.auth, username: req.session.username
     })
-    console.log(`username: ${req.session.username}`)
 }

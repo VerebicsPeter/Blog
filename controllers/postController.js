@@ -1,4 +1,3 @@
-// TODO: error handling
 const Post = require('../models/post')
 const Comment = require('../models/comment')
 
@@ -13,43 +12,37 @@ const Dompurify = require('dompurify')
 const dompurify = Dompurify(window)
 
 exports.postsIndex = async (req, res) => {
-    try {
-        const { page, limit } = req.pagination
-        const count = await Post.count()
-        const posts = await Post.find().
-        limit(limit).skip(limit * (page - 1))
+    const { page, limit } = req.pagination
+    const count = await Post.count()
+    const posts = await Post.find().
+    limit(limit).skip(limit * (page - 1))
 
-        const prev = page > 1             ? page - 1 : NaN
-        const next = page * limit < count ? page + 1 : NaN
+    const prev = page > 1             ? page - 1 : NaN
+    const next = page * limit < count ? page + 1 : NaN
 
-        res.render('posts/index', { posts, title: "Posts", auth: req.session.auth,
-        page, prev, next })
-    }
-    catch(error) {
-        console.log(error.message)
-        return res.status(500).json({ message: error.message })
-    }
+    res.render('posts/index', {posts, title: "Posts", auth: req.session.auth,
+    page, prev, next})
 }
 
 exports.postsIndexSearch = async (req, res) => {
     const { title } = req.query
     const limit = 5
     const posts = await Post.find({title: {'$regex': title}}).limit(limit)
-    res.render('posts/index', { posts, title: "Posts", auth: req.session.auth,
+    res.render('posts/index', {posts, title: "Posts", auth: req.session.auth,
     page: NaN, prev: NaN, next: NaN})
 }
 
 exports.createPostForm = (req, res) => {
-    if (!req.session.auth) {res.redirect('/users/login'); return}
     res.render('posts/new', { title: "New Post", auth: req.session.auth })
 }
 
 exports.createPost = async (req, res) => {
-    if (!req.session.auth) {res.redirect('/posts'); return}
-    
     const { title, text } = req.body
-    const post = new Post({ username: req.session.username, title, text })
+    const post = new Post({username: req.session.username, title, text})
+
+    await post.validate()
     await post.save()
+    
     res.redirect(`/posts/${post.id}`)
 }
 
@@ -78,7 +71,6 @@ exports.editPostForm = async (req, res) => {
     const isId = mongoose.isValidObjectId(id)
 
     if (!isId) {res.redirect('/posts'); return}
-
     const post = await Post.findById(id)
 
     if (post.username === req.session.username) {
@@ -91,15 +83,12 @@ exports.editPostForm = async (req, res) => {
 }
 
 exports.editPost = async (req, res) => {
-    if (!req.session.auth) {res.redirect('/posts'); return}
-    
     const { id } = req.params
     const post = await Post.findById(id)
     if ( !post || post.username !== req.session.username ) {
-        res.redirect('/posts')
-    }
+        res.redirect('/posts'); return                     }
     const newTitle = req.body.title
-    const newText  = req.body.text
+    const newText = req.body.text
     await
     Post.findByIdAndUpdate(id,
         {title: newTitle, text: newText},
@@ -108,13 +97,12 @@ exports.editPost = async (req, res) => {
 }
 
 exports.deletePost = async (req, res) => {
-    if (!req.session.auth) {res.redirect('/posts'); return}
-    
     const { id } = req.params
+    
     await
     Post.findByIdAndDelete(id)
     await
     Comment.deleteMany({post: id})
-    
-    res.redirect('/posts')
+        
+    res.redirect('/posts')   
 }

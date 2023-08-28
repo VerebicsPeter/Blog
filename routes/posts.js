@@ -1,38 +1,46 @@
 const express = require('express')
 const methodOverride = require('method-override')
-const router = express.Router()
 
 // Controller
 const controller = require('../controllers/postController')
+// Utils
+const { catchAsync, paginate } = require('../middleware/utils')
+// Simple error handler middleware
+const { errorHandler } = require('../middleware/error')
+// Simple authentication middleware
+const { auth } = require('../middleware/auth')
+
+// Router
+const router = express.Router()
 
 // Middleware
-const { paginate } = require('../middleware/paginate')
 router.use(express.urlencoded({extended: true}))
 router.use(express.json())
 router.use(methodOverride('_method'))
+router.use(errorHandler)
 
 // Get post index page
-router.get('/', paginate(controller.postsIndex))
+router.get('/', catchAsync(paginate(controller.postsIndex)))
 
-// Post index page search
-router.get('/search', controller.postsIndexSearch)
-
-// Save post
-router.post('/', controller.createPost)
+// Get post index page search
+router.get('/search', catchAsync(controller.postsIndexSearch))
 
 // Get post creation form
-router.get('/new', controller.createPostForm)
+router.get('/new', auth, controller.createPostForm)
+
+// Create post
+router.post('/', auth, catchAsync(controller.createPost))
 
 // Get post page
-router.get('/:id', controller.showPost)
+router.get('/:id', catchAsync(controller.showPost))
 
 // Get post updating form
-router.get('/:id/edit', controller.editPostForm)
+router.get('/:id/edit', auth, catchAsync(controller.editPostForm))
 
 // Update post
-router.put('/:id', controller.editPost)
+router.put('/:id', auth, catchAsync(controller.editPost))
 
 // Delete post
-router.delete('/:id', controller.deletePost)
+router.delete('/:id', auth, catchAsync(controller.deletePost))
 
 module.exports = router

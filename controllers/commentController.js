@@ -1,8 +1,6 @@
 const Comment = require('../models/comment')
 
 exports.createComment = async (req, res) => {
-    if (!req.session.auth) {res.redirect('/login')}
-    
     const { post } = req.params
     const { comment } = req.body
     const newComment = new Comment({
@@ -14,9 +12,8 @@ exports.createComment = async (req, res) => {
 
 exports.deleteComment = async (req, res) => {
     const { id } = req.params
-    if (!req.session.auth) {res.redirect('/login'); return}
-    
-    const comment = await Comment.findByIdAndRemove(id)
-    if (comment) {res.redirect(`/posts/${comment.post}`); return}
-    res.redirect('/posts')
+    const comment = 
+    await Comment.findOneAndDelete({_id: id, username: req.session.username})
+    if (comment) {res.redirect(`/posts/${comment.post}`)}
+    else         {res.redirect('/posts')}
 }
