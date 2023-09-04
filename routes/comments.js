@@ -1,10 +1,9 @@
 const express = require('express')
-
+// Router
 const router = express.Router()
-
 // Controller
 const controller = require('../controllers/commentController')
-
+// Middleware and utils
 const {  catchAsync  } = require('../utils/utils')
 const { errorHandler } = require('../middleware/error')
 const { auth } = require('../middleware/auth')

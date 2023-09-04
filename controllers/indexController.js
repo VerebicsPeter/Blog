@@ -13,6 +13,6 @@ exports.home = async (req, res) => {
     res.render('home', {
         posts,
         title: "Home", category: 'home',
-        auth: req.session.auth, username
+        username
     })
 }

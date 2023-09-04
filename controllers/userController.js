@@ -4,20 +4,20 @@ const User = require('../models/user')
 // Bcrypt for password encription
 const bcrypt = require("bcrypt")
 
-//exports.users = (req, res) => { res.send('This will be the users page.') }
-
 exports.signUpForm = (req, res) => {
     if (req.session.auth) {res.redirect('/'); return}
+    // Set messages
     const warning_message = req.session.warning_message
     req.session.warning_message = undefined
-    res.render('auth/signup', { title: "Sign up", category: 'none', warning_message, auth: false })
+    // Render page
+    res.render('auth/signup', { title: "Sign up", category: 'none', warning_message })
 }
 
 exports.signUpUser = async (req, res) => {
     const { username, password } = req.body
     
     const user = await User.findOne({username})
-    // username already exists case
+    // Username already exists case
     if (user) {
         req.session.warning_message = 'Username already exists!'
         res.redirect('/users/signup')
@@ -34,11 +34,13 @@ exports.signUpUser = async (req, res) => {
 
 exports.loginForm = (req, res) => {
     if (req.session.auth) {res.redirect('/'); return}
+    // Set messages
     const warning_message = req.session.warning_message
     const success_message = req.session.success_message
     req.session.warning_message = undefined
     req.session.success_message = undefined
-    res.render('auth/login', { title: "Log in", category: 'none', warning_message, success_message, auth: false })
+    // Reder page
+    res.render('auth/login', { title: "Log in", category: 'none', warning_message, success_message })
 }
 
 exports.loginUser = async (req, res) => {

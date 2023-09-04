@@ -1,23 +1,25 @@
 const express = require('express')
-const methodOverride = require('method-override')
-
+// Router
+const router = express.Router()
 // Controller
 const controller = require('../controllers/postController')
 // Utils
 const { catchAsync, paginate } = require('../utils/utils')
-// Simple error handler middleware
+// Middleware for handling errors
 const { errorHandler } = require('../middleware/error')
-// Simple authentication middleware
+// Middleware for setting locals
+const { locals } = require('../middleware/locals')
+// Middleware for authentication
 const { auth } = require('../middleware/auth')
-
-// Router
-const router = express.Router()
+// Method Override for sending put and delete requests
+const methodOverride = require('method-override')
 
 // Middleware
 router.use(express.urlencoded({extended: true}))
 router.use(express.json())
 router.use(methodOverride('_method'))
 router.use(errorHandler)
+router.use(locals)
 
 // Get post index page
 router.get('/', catchAsync(paginate(controller.postsIndex)))

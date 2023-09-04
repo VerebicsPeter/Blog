@@ -27,9 +27,9 @@ exports.postsIndex = async (req, res) => {
     res.render('posts/index', {
         posts,
         title: "Posts", category: 'post',
-        auth: req.session.auth,
         page, prev, next,
     })
+
 }
 
 exports.postsIndexSearch = async (req, res) => {
@@ -39,15 +39,13 @@ exports.postsIndexSearch = async (req, res) => {
     res.render('posts/index', {
         posts,
         title: "Posts", category: 'post',
-        auth: req.session.auth,
         page: NaN, prev: NaN, next: NaN
     })
 }
 
 exports.createPostForm = (req, res) => {
     res.render('posts/new', {
-        title: "New Post", category: 'new',
-        auth: req.session.auth
+        title: "New Post", category: 'new'
     })
 }
 
@@ -80,7 +78,6 @@ exports.showPost = async (req, res) => {
     res.render('posts/show', {
         post, comments,
         title: post.title, category: 'post',
-        auth: req.session.auth,
         username, authorized
     })
 }
@@ -98,8 +95,7 @@ exports.editPostForm = async (req, res) => {
     if (authorized) {
         res.render('posts/edit', {
             post,
-            title: `Editing '${post.title}'`, category: 'post',
-            auth: req.session.auth
+            title: `Editing '${post.title}'`, category: 'post'
         })
     } else {
         res.redirect(`/posts/${id}`)
