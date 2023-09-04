@@ -1,48 +1,60 @@
+// Models
 const Post = require('../models/post')
 const Comment = require('../models/comment')
 
+// Utils
+const { isAuthorizedUser, getPaginationPrevNext } = require('../utils/utils')
+
+// Mongoose for id validation
 const mongoose = require('mongoose')
 
+// Marked for rendering markdown
 const { marked } = require('marked')
-//marked.use({sanitize: true}) // don't use, deprecated
+
 // JSDOM and DOM Purify for sanitizing marked HTML
 const { JSDOM } = require('jsdom')
 const window = new JSDOM('').window
 const Dompurify = require('dompurify')
 const dompurify = Dompurify(window)
 
-const getPaginationPrevNext = (page, limit, count) => {
-    const prev = page > 1 ?             page - 1 : NaN
-    const next = page * limit < count ? page + 1 : NaN
-    return { prev, next }
-}
-
 exports.postsIndex = async (req, res) => {
     const { page, limit } = req.pagination
+    const posts = await Post.find().limit(limit).skip(limit * (page - 1))
     const count = await Post.count()
-    const posts = await Post.find().
-    limit(limit).skip(limit * (page - 1))
 
     const { prev, next } = getPaginationPrevNext(page, limit, count)
 
-    res.render('posts/index', {posts, title: "Posts", auth: req.session.auth,
-    page, prev, next})
+    res.render('posts/index', {
+        posts,
+        title: "Posts", category: 'post',
+        auth: req.session.auth,
+        page, prev, next,
+    })
 }
 
 exports.postsIndexSearch = async (req, res) => {
-    const { title } = req.query; const limit = 5
+    const { title } = req.query
+    const limit = 5
     const posts = await Post.find({title: {'$regex': title}}).limit(limit)
-    res.render('posts/index', {posts, title: "Posts", auth: req.session.auth,
-    page: NaN, prev: NaN, next: NaN})
+    res.render('posts/index', {
+        posts,
+        title: "Posts", category: 'post',
+        auth: req.session.auth,
+        page: NaN, prev: NaN, next: NaN
+    })
 }
 
 exports.createPostForm = (req, res) => {
-    res.render('posts/new', {title: "New Post", auth: req.session.auth})
+    res.render('posts/new', {
+        title: "New Post", category: 'new',
+        auth: req.session.auth
+    })
 }
 
 exports.createPost = async (req, res) => {
     const { title, text } = req.body
-    const post = new Post({username: req.session.username, title, text})
+    const { username } = req.session.user
+    const post = new Post({username, title, text})
 
     await post.validate()
     await post.save()
@@ -62,12 +74,14 @@ exports.showPost = async (req, res) => {
     post.text = dompurify.sanitize(marked.parse(post.text)) // sanitized HTML
 
     const comments = await Comment.find({post: id})
-    const authorized = post.username === req.session.username
+    const username = req.session.auth ? req.session.user.username : undefined
+    const authorized = isAuthorizedUser(req.session,post.username)
 
     res.render('posts/show', {
-        post, title: post.title, 
-        auth: req.session.auth, username: req.session.username,
-        authorized, comments
+        post, comments,
+        title: post.title, category: 'post',
+        auth: req.session.auth,
+        username, authorized
     })
 }
 
@@ -79,11 +93,13 @@ exports.editPostForm = async (req, res) => {
     const post = await Post.findById(id)
     if (!post) {res.redirect('/posts'); return}
 
-    const authorized = post.username === req.session.username
+    const authorized = isAuthorizedUser(req.session, post.username)
 
     if (authorized) {
         res.render('posts/edit', {
-            post, title: `Editing '${post.title}'`, auth: req.session.auth
+            post,
+            title: `Editing '${post.title}'`, category: 'post',
+            auth: req.session.auth
         })
     } else {
         res.redirect(`/posts/${id}`)
@@ -92,9 +108,10 @@ exports.editPostForm = async (req, res) => {
 
 exports.editPost = async (req, res) => {
     const { id } = req.params
+    const { username } = req.session.user
+
     const post = await Post.findById(id)
-    if ( !post || post.username !== req.session.username ) {
-        res.redirect('/posts'); return                     }
+    if ( !post || post.username !== username ) {res.redirect('/posts'); return}
     const newTitle = req.body.title
     const newText = req.body.text
     await

@@ -2,7 +2,7 @@ const express = require('express')
 
 // Controller
 const controller = require('../controllers/indexController')
-const {  catchAsync  } = require('../middleware/utils')
+const {  catchAsync  } = require('../utils/utils')
 const { errorHandler } = require('../middleware/error')
 
 // Router

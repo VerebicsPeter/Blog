@@ -1,15 +1,16 @@
+// Models
 const User = require('../models/user')
 
+// Bcrypt for password encription
 const bcrypt = require("bcrypt")
 
-exports.users = (req, res) => { res.send('This will be the users page.') }
+//exports.users = (req, res) => { res.send('This will be the users page.') }
 
 exports.signUpForm = (req, res) => {
     if (req.session.auth) {res.redirect('/'); return}
-    
-    const message = req.session.message
-    req.session.message = undefined
-    res.render('auth/signup', { title: "Sign up", message})
+    const warning_message = req.session.warning_message
+    req.session.warning_message = undefined
+    res.render('auth/signup', { title: "Sign up", category: 'none', warning_message, auth: false })
 }
 
 exports.signUpUser = async (req, res) => {
@@ -18,47 +19,49 @@ exports.signUpUser = async (req, res) => {
     const user = await User.findOne({username})
     // username already exists case
     if (user) {
-        req.session.message = 'Username already exists!'
+        req.session.warning_message = 'Username already exists!'
         res.redirect('/users/signup')
         return
     }
     const hash = await bcrypt.hash(password, 10)
     const newUser = new User({username, password: hash})
     await newUser.save()
-    console.log(`${username} just signed up.`)
+    req.session.success_message = 'Signed up successfuly.'
     res.redirect('/users/login')
+
+    console.log(`${username} just signed up.`)
 }
 
 exports.loginForm = (req, res) => {
     if (req.session.auth) {res.redirect('/'); return}
- 
-    const message = req.session.message
-    req.session.message = undefined
-    res.render('auth/login', { title: "Log in", message})
+    const warning_message = req.session.warning_message
+    const success_message = req.session.success_message
+    req.session.warning_message = undefined
+    req.session.success_message = undefined
+    res.render('auth/login', { title: "Log in", category: 'none', warning_message, success_message, auth: false })
 }
 
 exports.loginUser = async (req, res) => {
     const { username, password } = req.body
-    
     const user = await User.findOne({username})
-
+    // true if a user provided the right password
     let matches = false
 
     if (user) { matches = await bcrypt.compare(password, user.password) }
 
     if (matches) {
         req.session.auth = true
-        req.session.username = username
+        req.session.user = { username }
         res.redirect('/')
     } else {
-        req.session.message = 'Wrong username or password!'
+        req.session.warning_message = 'Wrong username or password!'
         res.redirect('/users/login')
     }
 }
 
 exports.logoutUser = (req, res) => {
     if (req.session.auth) {
-        req.session.auth = false; req.session.username = undefined
+        req.session.destroy()
     }
     res.redirect('/')
 }

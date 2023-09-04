@@ -5,7 +5,7 @@ const router = express.Router()
 // Controller
 const controller = require('../controllers/commentController')
 
-const {  catchAsync  } = require('../middleware/utils')
+const {  catchAsync  } = require('../utils/utils')
 const { errorHandler } = require('../middleware/error')
 const { auth } = require('../middleware/auth')
 

@@ -5,7 +5,7 @@ const router = express.Router()
 // Controller
 const controller = require('../controllers/userController')
 
-const {  catchAsync  } = require('../middleware/utils')
+const {  catchAsync  } = require('../utils/utils')
 const { errorHandler } = require('../middleware/error')
 
 // Middleware
@@ -14,7 +14,7 @@ router.use(express.json())
 router.use(errorHandler)
 
 // Query users
-router.get('/', controller.users)
+//router.get('/', controller.users)
 
 // Get sign up form
 router.get('/signup', controller.signUpForm)

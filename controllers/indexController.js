@@ -1,14 +1,18 @@
+// Models
 const Post = require('../models/post')
 
 exports.home = async (req, res) => {
-    let posts = []
-
+    let username = undefined 
+    let posts    = []
+    
     if (req.session.auth) {
-        posts = await Post.find({username: req.session.username})
+        username = req.session.user.username
+        posts    = await Post.find({username})
     }
 
     res.render('home', {
-        title: "Home", posts,
-        auth: req.session.auth, username: req.session.username
+        posts,
+        title: "Home", category: 'home',
+        auth: req.session.auth, username
     })
 }

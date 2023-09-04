@@ -1,5 +1,6 @@
 const express = require('express')
 const session = require('express-session')
+const engine = require('ejs-mate')
 const path = require('path')
 const port = 8000
 const db = require('./db')
@@ -13,13 +14,22 @@ const commentsRouter = require('./routes/comments')
 
 db.connect()
 
+// Session
+app.use(session({ 
+    secret: 'thisisthesecret',
+    coockie: {httpOnly: true, /*secure: true*/},
+    resave: false, saveUninitialized: false
+}))
+
 // Middleware
-app.use(session({ secret: 'thisisthesecret', resave: false, saveUninitialized: false }))
 app.use('/public', express.static(path.join(__dirname, 'public')))
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
 app.use('/posts', postsRouter)
 app.use('/comments', commentsRouter)
+
+// Engine
+app.engine('ejs', engine)
 
 // Setters
 app.set('view engine', 'ejs')

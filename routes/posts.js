@@ -4,7 +4,7 @@ const methodOverride = require('method-override')
 // Controller
 const controller = require('../controllers/postController')
 // Utils
-const { catchAsync, paginate } = require('../middleware/utils')
+const { catchAsync, paginate } = require('../utils/utils')
 // Simple error handler middleware
 const { errorHandler } = require('../middleware/error')
 // Simple authentication middleware
