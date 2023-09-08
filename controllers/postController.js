@@ -17,16 +17,11 @@ const window = new JSDOM('').window
 const Dompurify = require('dompurify')
 const dompurify = Dompurify(window)
 
-// TODO: refactor pagination logic into util function
 exports.postsIndex = async (req, res) => {
-    const count = await Post.count()
-    
-    let { page, limit } = req.pagination
-    // Make sure that page exists
-    page = (page < 1) || ((page - 1) * limit) >= count ? 1 : page
-    
+    const { page, limit } = req.pagination
     const posts = await Post.find().limit(limit).skip(limit * (page - 1))
-    
+    const count = await Post.count()
+
     const { prev, next } = getPaginationPrevNext(page, limit, count)
 
     res.render('posts/index', {
@@ -34,9 +29,9 @@ exports.postsIndex = async (req, res) => {
         title: "Posts", category: 'post',
         page, prev, next,
     })
+
 }
 
-// TODO: make search case insensitive
 exports.postsIndexSearch = async (req, res) => {
     const { title } = req.query
     const limit = 5

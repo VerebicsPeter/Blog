@@ -18,7 +18,7 @@
     <article class="border m-2 p-2 rounded bg-light">
       <h2><%=post.title%></h2>
       <hr>
-      <span>Posted by <b><%=post.username%></b></span>
+      <span>posted by <b><%=post.username%></b></span>
       <hr>
       <a href="/posts/<%=post.id%>" class="mr-2">Show</a>
     </article>
@@ -31,17 +31,17 @@
     <ul class="pagination">
       <li class="page-item">
         <% if (!isNaN(prev)) { %>
-          <a class="page-link" href="/posts?page=<%=prev%>">&laquo;</a>
+          <a class="page-link" href="/posts?page=<%=prev%>">Previous</a>
         <% } else { %>
-          <div class="page-link bg-light text-secondary">&laquo;</div>
+          <div class="page-link bg-light text-secondary">Previous</div>
         <% } %>
       </li>
       <li class="page-item"><div class="page-link"><%=page%></div></li>
       <li class="page-item">
         <% if (!isNaN(next)) { %>
-          <a class="page-link" href="/posts?page=<%=next%>">&raquo;</a>
+          <a class="page-link" href="/posts?page=<%=next%>">Next</a>
         <% } else { %>
-          <div class="page-link bg-light text-secondary">&raquo;</div>
+          <div class="page-link bg-light text-secondary">Next</div>
         <% } %>
       </li>
     </ul>
